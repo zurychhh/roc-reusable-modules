@@ -1,0 +1,59 @@
+name: A/B Test Experiment Scheduler
+
+on:
+  # Daily at 9:00 UTC (10:00 CET)
+  schedule:
+    - cron: '0 9 * * *'
+
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      auto_switch:
+        description: 'Automatically switch experiments'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  check-experiments:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Experiment Scheduler
+        env:
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+          POSTHOG_API_HOST: ${{ vars.POSTHOG_API_HOST || 'https://eu.posthog.com' }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFICATION_EMAIL: ${{ vars.NOTIFICATION_EMAIL }}
+          PROJECT_NAME: ${{ vars.PROJECT_NAME || 'A/B Testing' }}
+        run: |
+          if [ "${{ github.event.inputs.auto_switch }}" == "true" ]; then
+            npx tsx scripts/experiment-scheduler.ts --auto
+          else
+            npx tsx scripts/experiment-scheduler.ts
+          fi
+
+      - name: Notify on Slack (optional)
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "⚠️ A/B Test Scheduler failed! Check GitHub Actions."
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

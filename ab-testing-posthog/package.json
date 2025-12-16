@@ -1,0 +1,41 @@
+{
+  "name": "@roc/ab-testing-posthog",
+  "version": "1.0.0",
+  "description": "A/B Testing module with PostHog, auto-scheduler, and email notifications",
+  "author": "ROC (Rapid Outcome Consulting)",
+  "license": "MIT",
+  "keywords": [
+    "ab-testing",
+    "posthog",
+    "experiments",
+    "analytics",
+    "feature-flags",
+    "scheduler"
+  ],
+  "scripts": {
+    "cli": "tsx scripts/posthog-cli.ts",
+    "scheduler": "tsx scripts/experiment-scheduler.ts",
+    "scheduler:auto": "tsx scripts/experiment-scheduler.ts --auto",
+    "setup": "tsx scripts/setup-experiments.ts",
+    "test-email": "tsx scripts/test-email.ts"
+  },
+  "dependencies": {
+    "posthog-js": "^1.96.0",
+    "resend": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "posthog-js": ">=1.90.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zurychhh/roc-reusable-modules"
+  }
+}
